@@ -7,8 +7,12 @@ import argparse
 import datetime
 import struct
 
-parser = argparse.ArgumentParser(description="EXPERIMENTAL! WARNING THIS WILL CHANGE ALL FOUND .MOV FILENAMES! EXPERIMENTAL! This will rename all .MOV files in a directory to follow the following capture time format 'IMG_YYYYMMDD_HHMMSS.MOV'. If a conflict arises the script will increment the file name by 1 as such 'IMG_YYYYMMDD_HHMMSS_1.MOV'.")
+parser = argparse.ArgumentParser(description="EXPERIMENTAL! WARNING THIS WILL CHANGE ALL FOUND .MOV FILENAMES! EXPERIMENTAL! This will rename all .MOV files in a directory to follow the following capture time format 'MOV_YYYYMMDD_HHMMSS.MOV'. If a conflict arises the script will increment the file name by 1 as such 'MOV_YYYYMMDD_HHMMSS_1.MOV'.")
 parser.add_argument('--path', help="file directory to look for MOV files to modify")
+parser.add_argument('--days', type=int, default=0, help="integer value adjusts datetime 'day' value")
+parser.add_argument('--hours', type=int, default=0, help="integer value adjusts datetime 'hour' value")
+parser.add_argument('--minutes', type=int, default=0, help="integer value adjusts datetime 'minute' value")
+parser.add_argument('--seconds', type=int, default=0, help="integer value adjusts datetime 'second' value")
 parser.add_argument("-v", "--verbose", action='store_true',
                     help="when set, output shows old and new file names for each modified file")
 args = parser.parse_args()
@@ -49,7 +53,7 @@ def get_mov_datetime(filename):
         #print datetime.datetime.utcfromtimestamp(creation_date - EPOCH_ADJUSTER)
         #print "modification date:",
         #print datetime.datetime.utcfromtimestamp(modification_date - EPOCH_ADJUSTER)
-        return datetime.datetime.utcfromtimestamp(creation_date - EPOCH_ADJUSTER)
+        return datetime.datetime.utcfromtimestamp(creation_date - EPOCH_ADJUSTER) + datetime.timedelta(days=args.days,hours=args.hours,minutes=args.minutes,seconds=args.seconds)
 
 
 def list_dir_mov(basedir=os.path.curdir):
@@ -74,7 +78,7 @@ def modify_mov_filename(directory=os.curdir):
             oldmov = mov[:-4]+'_old'+mov[-4:]
             os.rename(mov,oldmov)
     movs,others,subdirs = list_dir_mov(directory)
-    
+
     print '=MOV-FILENAME-MODIFIER'+ '='*17
     print 'Ignored files:', len(others)
     print 'Ignored sub directories:', len(subdirs)
@@ -84,16 +88,19 @@ def modify_mov_filename(directory=os.curdir):
         print 'There are no "*.MOV" files in supplied directory!'
         print '='*40
     else:
+        print 'MOV timestamp to be offset as follows:'
+        print 'Days:'+str(args.days)+'|'+'Hours:'+str(args.hours)+'|'+'Minutes:'+str(args.minutes)+'|'+'Seconds:'+str(args.seconds)
+        print '='*40
         print 'Editing MOV Filenames...'
-        
+
         for mov in movs:
-            
+
             # fdt = datetime.datetime.strptime(piexif.load(mov)['0th'][306],"%Y:%m:%d %H:%M:%S")
             fdt = get_mov_datetime(mov)
 
             matches = [
-                item 
-                for item in os.listdir(directory) 
+                item
+                for item in os.listdir(directory)
                 if re.search('MOV_'+'{:%Y%m%d_%H%M%S}'.format(fdt)+'(_?[0-9]*)\.[mM][oO][vV]', item)
             ]
             if len(matches) > 0:
@@ -101,7 +108,7 @@ def modify_mov_filename(directory=os.curdir):
                     new_filename = 'MOV_'+'{:%Y%m%d_%H%M%S}'.format(fdt)+'_'+str(len(matches))+'.MOV'
             else:
                 new_filename = 'MOV_'+'{:%Y%m%d_%H%M%S}'.format(fdt)+'.MOV'
-                
+
             try:
                 os.rename(mov,directory+'\\'+new_filename)
             except WindowsError, arg:
