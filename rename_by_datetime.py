@@ -35,7 +35,7 @@ def modify_jpeg_filename(directory=os.curdir):
             oldpic = pic[:-4]+'_old'+pic[-4:]
             os.rename(pic,oldpic)
     jpegs,others,subdirs = list_dir_jpeg(directory)
-    
+
     print '=JPEG-FILENAME-MODIFIER'+ '='*17
     print 'Ignored files:', len(others)
     print 'Ignored sub directories:', len(subdirs)
@@ -46,14 +46,14 @@ def modify_jpeg_filename(directory=os.curdir):
         print '='*40
     else:
         print 'Editing JPEG Filenames...'
-        
+
         for pic in jpegs:
-            
+
             fdt = dt.datetime.strptime(piexif.load(pic)['0th'][306],"%Y:%m:%d %H:%M:%S")
-            
+
             matches = [
-                item 
-                for item in os.listdir(directory) 
+                item
+                for item in os.listdir(directory)
                 if re.search('IMG_'+'{:%Y%m%d_%H%M%S}'.format(fdt)+'(_?[0-9]*)\.[jJ][pP][gG]',item)
             ]
             if len(matches) > 0:
@@ -61,7 +61,7 @@ def modify_jpeg_filename(directory=os.curdir):
                     new_filename = 'IMG_'+'{:%Y%m%d_%H%M%S}'.format(fdt)+'_'+str(len(matches))+'.JPG'
             else:
                 new_filename = 'IMG_'+'{:%Y%m%d_%H%M%S}'.format(fdt)+'.JPG'
-                
+
             try:
                 os.rename(pic,directory+'\\'+new_filename)
             except WindowsError, arg:
