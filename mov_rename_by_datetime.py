@@ -74,7 +74,7 @@ def modify_mov_filename(directory=os.curdir):
             oldmov = mov[:-4]+'_old'+mov[-4:]
             os.rename(mov,oldmov)
     movs,others,subdirs = list_dir_mov(directory)
-    
+
     print '=MOV-FILENAME-MODIFIER'+ '='*17
     print 'Ignored files:', len(others)
     print 'Ignored sub directories:', len(subdirs)
@@ -85,15 +85,15 @@ def modify_mov_filename(directory=os.curdir):
         print '='*40
     else:
         print 'Editing MOV Filenames...'
-        
+
         for mov in movs:
-            
+
             # fdt = datetime.datetime.strptime(piexif.load(mov)['0th'][306],"%Y:%m:%d %H:%M:%S")
             fdt = get_mov_datetime(mov)
 
             matches = [
-                item 
-                for item in os.listdir(directory) 
+                item
+                for item in os.listdir(directory)
                 if re.search('MOV_'+'{:%Y%m%d_%H%M%S}'.format(fdt)+'(_?[0-9]*)\.[mM][oO][vV]', item)
             ]
             if len(matches) > 0:
@@ -101,7 +101,7 @@ def modify_mov_filename(directory=os.curdir):
                     new_filename = 'MOV_'+'{:%Y%m%d_%H%M%S}'.format(fdt)+'_'+str(len(matches))+'.MOV'
             else:
                 new_filename = 'MOV_'+'{:%Y%m%d_%H%M%S}'.format(fdt)+'.MOV'
-                
+
             try:
                 os.rename(mov,directory+'\\'+new_filename)
             except WindowsError, arg:
