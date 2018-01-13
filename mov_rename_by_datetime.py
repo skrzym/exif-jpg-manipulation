@@ -111,9 +111,9 @@ def modify_mov_filename(directory=os.curdir):
 
             try:
                 os.rename(mov,directory+'\\'+new_filename)
-            except WindowsError, arg:
+            except OSError, arg:
                 print(os.path.basename(mov),new_filename)
-                raise WindowsError, arg
+                raise OSError, arg
             if args.verbose:
                 print ' '*2 + os.path.basename(mov)[:-8] + ' --> ' + new_filename[:-4]
         print '='*40
